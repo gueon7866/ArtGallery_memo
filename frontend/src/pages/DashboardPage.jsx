@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
-import api from '../../services/api'; // Axios 인스턴스
-import ArtworkCard from '../../components/artworks/ArtworkCard';
-import Spinner from '../../components/common/Spinner';
+import api from "../services/api";
+import ArtworkCard from "../components/artworks/ArtworkCard.jsx";
+import Spinner from "../components/common/Spinner.jsx";
 
 // [사용자] 메인 대시보드 (작품 목록 보기)
 const DashboardPage = () => {
@@ -21,24 +21,21 @@ const DashboardPage = () => {
   const [tagFilter, setTagFilter] = useState(searchParams.get('tag') || '');
 
   // 1. 작품 목록 가져오기 (URL 쿼리 파라미터 기반)
-  const fetchArtworks = async () => {
-    try {
-      setLoading(true);
+const fetchArtworks = async () => {
+  try {
+    setLoading(true);
+    const params = new URLSearchParams(searchParams);
+    const { data } = await api.get('/api/artworks', { params });
 
-      // 현재 URL의 쿼리 파라미터를 그대로 백엔드 API에 전달
-      const params = new URLSearchParams(searchParams);
-      
-      // (백엔드 artworkController.js의 getArtworks와 연결됨)
-      const { data } = await api.get('/api/artworks', { params }); 
-      
-      setArtworks(data);
-      setError(null);
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to fetch artworks');
-    } finally {
-      setLoading(false);
-    }
-  };
+    console.log("✅ 서버 응답:", data); // 응답 구조 확인용
+    setArtworks(Array.isArray(data) ? data : data.artworks || []);
+    setError(null);
+  } catch (err) {
+    setError(err.response?.data?.message || 'Failed to fetch artworks');
+  } finally {
+    setLoading(false);
+  }
+};
 
   // 2. URL 쿼리 파라미터가 변경될 때마다 API 다시 호출
   useEffect(() => {
